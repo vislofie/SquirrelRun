@@ -33,6 +33,15 @@ public class PlayerBrain : MonoBehaviour
         {
             _movement.Jump();
         }
+
+        if (Input.GetKeyDown(KeyCode.E) && _movement.WallNearby && !_movement.Climbing)
+        {
+            _movement.Climb();
+        }
+        else if (Input.GetKeyUp(KeyCode.E) && _movement.Climbing)
+        {
+            _movement.StopClimbing();
+        }
     }
 
     private void FixedUpdate()
