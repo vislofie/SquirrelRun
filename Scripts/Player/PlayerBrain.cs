@@ -21,12 +21,21 @@ public class PlayerBrain : MonoBehaviour
 
     private void Update()
     {
+        TakeInput();
+        MoveByInput();
+    }
+
+    private void TakeInput()
+    {
         _horizontal = Input.GetAxis("Horizontal");
         _vertical = Input.GetAxis("Vertical");
 
         _mouseX = Input.GetAxis("Mouse X");
         _mouseY = Input.GetAxis("Mouse Y");
+    }
 
+    private void MoveByInput()
+    {
         _movement.RotateOnInput(_mouseX, _mouseY);
 
         if (Input.GetKeyDown(KeyCode.Space) && _movement.OnGround)
@@ -34,7 +43,7 @@ public class PlayerBrain : MonoBehaviour
             _movement.Jump();
         }
 
-        if (Input.GetKeyDown(KeyCode.E) && _movement.WallNearby && !_movement.Climbing)
+        if (Input.GetKey(KeyCode.E) && _movement.WallNearby && !_movement.Climbing)
         {
             _movement.Climb();
         }
