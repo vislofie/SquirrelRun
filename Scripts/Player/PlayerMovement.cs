@@ -9,7 +9,7 @@ public class PlayerMovement : MonoBehaviour
     {
         get
         {
-            return Physics.BoxCast(_collider.bounds.center, new Vector3(_collider.bounds.extents.x, _collider.bounds.extents.y / 2, _collider.bounds.extents.z), -transform.up, Quaternion.identity, 0.3f);
+            return Physics.BoxCast(_collider.bounds.center, new Vector3(_collider.bounds.extents.x, _collider.bounds.extents.y / 2, _collider.bounds.extents.z), Vector3.down, Quaternion.identity, 0.3f);
         }
     }
     public bool WallNearby => _wallNearby;
@@ -33,9 +33,12 @@ public class PlayerMovement : MonoBehaviour
     private float _phantomLerpSmooth;
 
     private Vector3 _playerEulerVelocity;
+    private Quaternion _beforePreparingForJumpRotation;
+
     private float _playerRotationY;
     private float _playerRotYVelocity;
 
+    private bool _preparingForJump;
 
     [Header("Camera")]
     [SerializeField]
@@ -70,6 +73,8 @@ public class PlayerMovement : MonoBehaviour
 
         _wallNearby = false;
         _climbing = false;
+
+        _preparingForJump = false;
     }
 
     private void CreatePhantomPlayer()
@@ -113,7 +118,8 @@ public class PlayerMovement : MonoBehaviour
             }
             else
             {
-                _phantomPlayer.transform.rotation = Quaternion.FromToRotation(_phantomPlayer.transform.up, _lastWallHit.normal) * _phantomPlayer.transform.rotation;
+                if (!_preparingForJump)
+                    _phantomPlayer.transform.rotation = Quaternion.FromToRotation(_phantomPlayer.transform.up, _lastWallHit.normal) * _phantomPlayer.transform.rotation;
 
                 transform.position = Vector3.Lerp(transform.position, _phantomPlayer.transform.position, _phantomLerpSmooth * Time.deltaTime);
                 transform.rotation = Quaternion.Lerp(transform.rotation, _phantomPlayer.transform.rotation, _phantomLerpSmooth * Time.deltaTime);
@@ -127,6 +133,9 @@ public class PlayerMovement : MonoBehaviour
 
     public void MoveOnInput(float horizontal, float vertical)
     {
+        if (_preparingForJump)
+            return;
+
         _movementDir = new Vector3(horizontal, 0, vertical);
 
         if (!_climbing)
@@ -136,13 +145,13 @@ public class PlayerMovement : MonoBehaviour
     }
     public void RotateOnInput(float mouseX, float mouseY)
     {
-        if (_climbing)
+       if (_climbing)
         {
             _cameraRotationX = Mathf.Clamp(_cameraRotationX - mouseY * Time.deltaTime * _cameraSensitivity, _cameraClampClimbing.x, _cameraClampClimbing.y);
-            _playerRotationY = Mathf.SmoothDamp(_playerRotationY, mouseX * Time.deltaTime * _cameraRotationX * _cameraSmoothValue, 
+            _playerRotationY = Mathf.SmoothDamp(_playerRotationY, mouseX * Time.deltaTime * _cameraSmoothValue * 60.0f, 
                                                 ref _playerRotYVelocity, _cameraSmoothValue * Time.deltaTime);
 
-            _phantomPlayer.transform.Rotate(new Vector3(0, _playerRotationY, 0));
+            _phantomPlayer.transform.Rotate(0, _playerRotationY, 0);
         }
         else
         {
@@ -153,7 +162,7 @@ public class PlayerMovement : MonoBehaviour
                                                             ref _playerEulerVelocity, _cameraSmoothValue * Time.deltaTime);
         }
 
-        _cameraEulerAngles = Vector3.SmoothDamp(_cameraEulerAngles, new Vector3(_cameraRotationX, _cameraRotationY, 0.0f), 
+        _cameraEulerAngles = Vector3.SmoothDamp(_cameraEulerAngles, new Vector3(_cameraRotationX, 0.0f, 0.0f), 
                                                 ref _cameraVelocity, _cameraSmoothValue * Time.deltaTime);
 
         Camera.main.transform.localEulerAngles = _cameraEulerAngles;
@@ -170,6 +179,40 @@ public class PlayerMovement : MonoBehaviour
             _rigidbody.AddForce(((transform.rotation * _movementDir * _jumpMovementDirAccelerator).normalized + transform.up).normalized * _jumpForce);
         }
         
+    }
+
+    public void PrepareForJump()
+    {
+        _preparingForJump = true;
+
+        _beforePreparingForJumpRotation = _phantomPlayer.transform.rotation;
+        _cameraRotationX = 0;
+
+        _phantomRigidbody.isKinematic = true;
+
+        _phantomPlayer.transform.LookAt(_lastWallHit.point + _lastWallHit.normal * 5);
+    }
+
+    public void UnPrepareForJump()
+    {
+        if (_preparingForJump)
+        {
+            _preparingForJump = false;
+            _phantomRigidbody.isKinematic = false;
+
+            RaycastHit hit;
+            if (Physics.Raycast(transform.position, transform.forward, out hit))
+            {
+                if (hit.collider == _hitAtStart.collider)
+                {
+                    return;
+                }
+            }
+
+            StopClimbing();
+
+            _rigidbody.AddForce(Camera.main.transform.forward * 2 * _jumpForce);
+        }
     }
 
     public void Climb()
@@ -198,16 +241,19 @@ public class PlayerMovement : MonoBehaviour
 
         HidePhantomPlayer();
 
-        _cameraRotationX = 0.0f;
-
         _playerEulerVelocity = Vector3.zero;
 
         transform.rotation = Quaternion.FromToRotation(transform.up, Vector3.up) * transform.rotation;
+
+        _preparingForJump = false;
 
     }
 
     private void CheckForWalls()
     {
+        if (_preparingForJump)
+            return;
+
         if (_climbing)
         {
             Ray[] rays =

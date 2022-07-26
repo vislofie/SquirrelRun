@@ -1,5 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 [RequireComponent(typeof(PlayerMovement))]
@@ -38,18 +36,33 @@ public class PlayerBrain : MonoBehaviour
     {
         _movement.RotateOnInput(_mouseX, _mouseY);
 
-        if (Input.GetKeyDown(KeyCode.Space) && _movement.OnGround)
+        if (_movement.Climbing)
         {
-            _movement.Jump();
-        }
+            if (Input.GetKeyUp(KeyCode.E))
+            {
+                _movement.StopClimbing();
+            }
 
-        if (Input.GetKey(KeyCode.E) && _movement.WallNearby && !_movement.Climbing)
-        {
-            _movement.Climb();
+            if (Input.GetKeyDown(KeyCode.Space))
+            {
+                _movement.PrepareForJump();
+            }
+            else if (Input.GetKeyUp(KeyCode.Space))
+            {
+                _movement.UnPrepareForJump();
+            }
         }
-        else if (Input.GetKeyUp(KeyCode.E) && _movement.Climbing)
+        else
         {
-            _movement.StopClimbing();
+            if (Input.GetKeyDown(KeyCode.E) && _movement.WallNearby)
+            {
+                _movement.Climb();
+            }
+
+            if (_movement.OnGround && Input.GetKeyDown(KeyCode.Space))
+            {
+                _movement.Jump();
+            }
         }
     }
 
