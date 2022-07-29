@@ -14,6 +14,7 @@ public class PlayerMovement : MonoBehaviour
     }
     public bool WallNearby => _wallNearby;
     public bool Climbing => _climbing;
+    public bool Running => _running;
 
     private GameObject _phantomPlayer;
     private Rigidbody _phantomRigidbody;
@@ -23,7 +24,9 @@ public class PlayerMovement : MonoBehaviour
 
     [Header("Movement")]
     [SerializeField]
-    private float _movementSpeed = 3.0f;
+    private float _normalSpeed = 3.0f;
+    [SerializeField]
+    private float _runningSpeed = 5.0f;
     [SerializeField]
     private float _jumpForce = 2.0f;
     [SerializeField]
@@ -35,8 +38,12 @@ public class PlayerMovement : MonoBehaviour
     private Vector3 _playerEulerVelocity;
     private Quaternion _beforePreparingForJumpRotation;
 
+    private float _movementSpeed;
+
     private float _playerRotationY;
     private float _playerRotYVelocity;
+
+    private bool _running;
 
     private bool _preparingForJump;
 
@@ -75,6 +82,8 @@ public class PlayerMovement : MonoBehaviour
         _climbing = false;
 
         _preparingForJump = false;
+
+        _movementSpeed = _normalSpeed;
     }
 
     private void CreatePhantomPlayer()
@@ -119,7 +128,9 @@ public class PlayerMovement : MonoBehaviour
             else
             {
                 if (!_preparingForJump)
+                {
                     _phantomPlayer.transform.rotation = Quaternion.FromToRotation(_phantomPlayer.transform.up, _lastWallHit.normal) * _phantomPlayer.transform.rotation;
+                }
 
                 transform.position = Vector3.Lerp(transform.position, _phantomPlayer.transform.position, _phantomLerpSmooth * Time.deltaTime);
                 transform.rotation = Quaternion.Lerp(transform.rotation, _phantomPlayer.transform.rotation, _phantomLerpSmooth * Time.deltaTime);
@@ -136,7 +147,7 @@ public class PlayerMovement : MonoBehaviour
         if (_preparingForJump)
             return;
 
-        _movementDir = new Vector3(horizontal, 0, vertical);
+        _movementDir = new Vector3(horizontal, 0, vertical).normalized;
 
         if (!_climbing)
             transform.Translate(_movementDir * Time.deltaTime * _movementSpeed);
@@ -193,7 +204,11 @@ public class PlayerMovement : MonoBehaviour
         _phantomPlayer.transform.LookAt(_lastWallHit.point + _lastWallHit.normal * 5);
     }
 
-    public void UnPrepareForJump()
+    /// <summary>
+    /// returns true if jumped and false if stayed on the surface
+    /// </summary>
+    /// <returns></returns>
+    public bool UnPrepareForJump()
     {
         if (_preparingForJump)
         {
@@ -205,17 +220,20 @@ public class PlayerMovement : MonoBehaviour
             {
                 if (hit.collider == _hitAtStart.collider)
                 {
-                    return;
+                    return false;
                 }
             }
 
             StopClimbing();
 
             _rigidbody.AddForce(Camera.main.transform.forward * 2 * _jumpForce);
+            return true;
         }
+
+        return false;
     }
 
-    public void Climb()
+    public void StartClimbing()
     {
         if (_lastWallHit.Equals(null))
             return;
@@ -247,6 +265,18 @@ public class PlayerMovement : MonoBehaviour
 
         _preparingForJump = false;
 
+    }
+
+    public void StartRunning()
+    {
+        _movementSpeed = _runningSpeed;
+        _running = true;
+    }
+
+    public void StopRunning()
+    {
+        _movementSpeed = _normalSpeed;
+        _running = false;
     }
 
     private void CheckForWalls()
@@ -293,6 +323,8 @@ public class PlayerMovement : MonoBehaviour
             }
         }
     }
+
+    
 
     //private void OnDrawGizmos()
     //{

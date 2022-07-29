@@ -602,7 +602,7 @@ Camera:
     height: 1
   near clip plane: 0.1
   far clip plane: 1000
-  field of view: 60
+  field of view: 90
   orthographic: 0
   orthographic size: 5
   m_Depth: -1
@@ -1312,6 +1312,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1886077780}
   - component: {fileID: 1886077779}
+  - component: {fileID: 1886077781}
   - component: {fileID: 1886077778}
   - component: {fileID: 1886077777}
   - component: {fileID: 1886077776}
@@ -1363,7 +1364,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a60ef5812d00b864e952c1bc711f977d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _movementSpeed: 3
+  _normalSpeed: 3
+  _runningSpeed: 5
   _jumpForce: 175
   _jumpMovementDirAccelerator: 0.3
   _phantomLerpSmooth: 15
@@ -1400,6 +1402,20 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1886077781
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1886077775}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: eeb4ac4ddee76b548890a26d8b32aba0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _maxHP: 100
+  _maxStamina: 100
 --- !u!1 &2021489785
 GameObject:
   m_ObjectHideFlags: 0
