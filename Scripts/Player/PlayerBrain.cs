@@ -16,6 +16,9 @@ public class PlayerBrain : MonoBehaviour
 
     private float _restExp;
     private bool _restReset;
+    
+    [SerializeField]
+    private int _targetFrameRate;
 
     private void Awake()
     {
@@ -27,6 +30,8 @@ public class PlayerBrain : MonoBehaviour
         Cursor.lockState = CursorLockMode.Locked;
 
         _restReset = false;
+
+        Application.targetFrameRate = _targetFrameRate;
     }
 
     private void Start()
@@ -75,7 +80,9 @@ public class PlayerBrain : MonoBehaviour
 
         _chars.Stamina += Time.deltaTime * _chars.StaminaRestVlaue * 0.5f * Mathf.Exp(_restExp);
 
-        _movement.RotateOnInput(_mouseX, _mouseY);
+
+
+
 
         if (_movement.Climbing)
         {
@@ -113,6 +120,18 @@ public class PlayerBrain : MonoBehaviour
             _chars.Stamina += Time.deltaTime * _chars.StaminaRestVlaue;
         }
 
+        _movement.RotateOnInput(_mouseX, _mouseY);
+
+        if (_chars.Stamina < 1.0f)
+        {
+            _movement.StopClimbing();
+            _movement.StopRunning();
+        }
+
+
+
+
+
         if (Input.GetKeyDown(KeyCode.LeftShift) && movingAtAll)
         {
             _movement.StartRunning();
@@ -126,14 +145,6 @@ public class PlayerBrain : MonoBehaviour
 
         if (_movement.Running)
             _chars.Stamina -= Time.deltaTime * _chars.StaminaCostForRunning;
-
-
-
-        if (_chars.Stamina < 1.0f)
-        {
-            _movement.StopClimbing();
-            _movement.StopRunning();
-        }
     }
 
     private void FixedUpdate()

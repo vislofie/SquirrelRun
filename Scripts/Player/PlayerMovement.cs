@@ -9,7 +9,7 @@ public class PlayerMovement : MonoBehaviour
     {
         get
         {
-            return Physics.BoxCast(_collider.bounds.center, new Vector3(_collider.bounds.extents.x, _collider.bounds.extents.y / 2, _collider.bounds.extents.z), Vector3.down, Quaternion.identity, 0.3f);
+            return Physics.BoxCast(_collider.bounds.center, new Vector3(_collider.bounds.extents.x, _collider.bounds.extents.y / 2, _collider.bounds.extents.z), Vector3.down, Quaternion.identity, 0.1f);
         }
     }
     public bool WallNearby => _wallNearby;
@@ -150,16 +150,16 @@ public class PlayerMovement : MonoBehaviour
         _movementDir = new Vector3(horizontal, 0, vertical).normalized;
 
         if (!_climbing)
-            transform.Translate(_movementDir * Time.deltaTime * _movementSpeed);
+            transform.Translate(_movementDir * Time.fixedDeltaTime * _movementSpeed);
         else
-            _phantomPlayer.transform.Translate(_movementDir * Time.deltaTime * _movementSpeed);
+            _phantomPlayer.transform.Translate(_movementDir * Time.fixedDeltaTime * _movementSpeed);
     }
     public void RotateOnInput(float mouseX, float mouseY)
     {
        if (_climbing)
         {
             _cameraRotationX = Mathf.Clamp(_cameraRotationX - mouseY * Time.deltaTime * _cameraSensitivity, _cameraClampClimbing.x, _cameraClampClimbing.y);
-            _playerRotationY = Mathf.SmoothDamp(_playerRotationY, mouseX * Time.deltaTime * _cameraSmoothValue * 60.0f, 
+            _playerRotationY = Mathf.SmoothDamp(_playerRotationY, mouseX * Time.deltaTime * _cameraSensitivity, 
                                                 ref _playerRotYVelocity, _cameraSmoothValue * Time.deltaTime);
 
             _phantomPlayer.transform.Rotate(0, _playerRotationY, 0);
