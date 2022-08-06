@@ -10,15 +10,20 @@ public class PlayerChars : MonoBehaviour
     private Slider _hpBar;
     [SerializeField]
     private Slider _staminaBar;
+    [SerializeField]
+    private Slider _hungerBar;
 
     [Header("Characterstics")]
     [SerializeField]
     private float _maxHP;
     [SerializeField]
     private float _maxStamina;
+    [SerializeField]
+    private float _maxHunger;
 
     private float _hp;
     private float _stamina;
+    private float _hunger;
 
     public float HP
     {
@@ -42,6 +47,18 @@ public class PlayerChars : MonoBehaviour
         {
             _stamina = Mathf.Clamp(value, 0, _maxStamina);
             _staminaBar.value = _stamina / _maxStamina;
+        }
+    }
+    public float Hunger
+    {
+        get
+        {
+            return _hunger;
+        }
+        set
+        {
+            _hunger = Mathf.Clamp(value, 0, _maxHunger);
+            _hungerBar.value = _hunger / _maxHunger;
         }
     }
     

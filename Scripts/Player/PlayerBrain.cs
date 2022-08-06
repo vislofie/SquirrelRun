@@ -5,6 +5,10 @@ public class PlayerBrain : MonoBehaviour
 {
     private PlayerMovement _movement;
     private PlayerChars _chars;
+    private PlayerFood _food;
+    private PlayerInventory _inventory;
+
+    private TriggerReceiver _triggerReceiver;
 
     private Camera _mainCamera;
 
@@ -24,6 +28,10 @@ public class PlayerBrain : MonoBehaviour
     {
         _movement = GetComponent<PlayerMovement>();
         _chars = GetComponent<PlayerChars>();
+        _food = GetComponent<PlayerFood>();
+        _inventory = GetComponent<PlayerInventory>();
+
+        _triggerReceiver = GetComponentInChildren<TriggerReceiver>();
 
         _mainCamera = Camera.main;
 
@@ -38,12 +46,15 @@ public class PlayerBrain : MonoBehaviour
     {
         _chars.HP = 10000;
         _chars.Stamina = 10000;
+        _chars.Hunger = 0;
     }
 
     private void Update()
     {
         TakeInput();
         MoveByInput();
+
+        _chars.Hunger += _food.HungerRate * Time.deltaTime;
     }
 
     private void TakeInput()
@@ -53,6 +64,23 @@ public class PlayerBrain : MonoBehaviour
 
         _mouseX = Input.GetAxis("Mouse X");
         _mouseY = Input.GetAxis("Mouse Y");
+
+        if (Input.GetKeyDown(KeyCode.F))
+        {
+
+            if (_inventory.SlotEmpty)
+            {
+                Collectable collectable;
+                if (_triggerReceiver.GetClosestCollectable(out collectable))
+                {
+                    _inventory.FillSlot(collectable);
+                }
+            }
+            else
+            {
+                _inventory.FreeSlot();
+            }
+        }
     }
 
     private void MoveByInput()
@@ -135,7 +163,7 @@ public class PlayerBrain : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.LeftShift) && movingAtAll)
         {
             _movement.StartRunning();
-            _mainCamera.fieldOfView = 120;
+            _mainCamera.fieldOfView = 100;
         }
         else if (Input.GetKeyUp(KeyCode.LeftShift))
         {

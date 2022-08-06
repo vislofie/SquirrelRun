@@ -24,6 +24,8 @@ public class PlayerMovement : MonoBehaviour
 
     [Header("Movement")]
     [SerializeField]
+    private LayerMask _climbableLayers;
+    [SerializeField]
     private float _normalSpeed = 3.0f;
     [SerializeField]
     private float _runningSpeed = 5.0f;
@@ -216,7 +218,7 @@ public class PlayerMovement : MonoBehaviour
             _phantomRigidbody.isKinematic = false;
 
             RaycastHit hit;
-            if (Physics.Raycast(transform.position, transform.forward, out hit))
+            if (Physics.Raycast(transform.position, transform.forward, out hit, _climbableLayers))
             {
                 if (hit.collider == _hitAtStart.collider)
                 {
@@ -295,7 +297,7 @@ public class PlayerMovement : MonoBehaviour
 
             foreach (Ray ray in rays)
             {
-                if (Physics.SphereCast(ray, 0.25f, out _lastWallHit, 0.45f))
+                if (Physics.SphereCast(ray, 0.25f, out _lastWallHit, 0.45f, _climbableLayers))
                 {
                     _wallNearby = true;
                     break;
@@ -315,7 +317,7 @@ public class PlayerMovement : MonoBehaviour
 
             foreach (Ray ray in rays)
             {
-                if (Physics.SphereCast(ray, 0.1f, out _lastWallHit, 0.45f))
+                if (Physics.SphereCast(ray, 0.1f, out _lastWallHit, 0.45f, _climbableLayers))
                 {
                     _wallNearby = true;
                     break;
@@ -323,14 +325,4 @@ public class PlayerMovement : MonoBehaviour
             }
         }
     }
-
-    
-
-    //private void OnDrawGizmos()
-    //{
-    //    Gizmos.color = Color.cyan;
-    //    Gizmos.DrawSphere(_lastWallHit.point, 0.3f);
-    //    Gizmos.DrawLine(transform.position, _lastWallHit.point);
-    //}
-
 }
