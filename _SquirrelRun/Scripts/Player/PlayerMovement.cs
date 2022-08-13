@@ -65,7 +65,6 @@ public class PlayerMovement : MonoBehaviour
     private Vector3 _movementDir;
 
     private float _cameraRotationX = 0.0f;
-    private float _cameraRotationY = 0.0f;
 
     private RaycastHit _lastWallHit; // the last hit that was detected by a sphere cast
     private RaycastHit _hitAtStart; // hit that started the climbing

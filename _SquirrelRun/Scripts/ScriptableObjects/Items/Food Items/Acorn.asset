@@ -1,0 +1,21 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5ea7f91938f12c34db9a4ea759581c95, type: 3}
+  m_Name: Acorn
+  m_EditorClassIdentifier: 
+  ID: 0
+  _peelable: 1
+  _normalMesh: {fileID: -5121449631070755920, guid: 8762df2671aab4d468fd65fc9b0a6cd0, type: 3}
+  _peeledMesh: {fileID: -5121449631070755920, guid: d5e49e2617613d945875635c03903465, type: 3}
+  _hungerReduceValue: 7
+  _timeToPeel: 1.5
+  _timeToEat: 0.5
