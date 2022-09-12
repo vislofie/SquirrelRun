@@ -8,8 +8,9 @@ public class PlayerBrain : MonoBehaviour
     private PlayerChars _chars;
     private PlayerFood _food;
     private PlayerInventory _inventory;
+    private PlayerUI _ui;
 
-    private TriggerReceiver _triggerReceiver;
+    private PlayerSenses _triggerReceiver;
 
     private Camera _mainCamera;
 
@@ -34,8 +35,9 @@ public class PlayerBrain : MonoBehaviour
         _chars = GetComponent<PlayerChars>();
         _food = GetComponent<PlayerFood>();
         _inventory = GetComponent<PlayerInventory>();
+        _ui = GetComponent<PlayerUI>();
 
-        _triggerReceiver = GetComponentInChildren<TriggerReceiver>();
+        _triggerReceiver = GetComponent<PlayerSenses>();
 
         _mainCamera = Camera.main;
 
@@ -48,7 +50,6 @@ public class PlayerBrain : MonoBehaviour
 
     private void Start()
     {
-        _chars.HP = 10000;
         _chars.Stamina = 10000;
         _chars.Hunger = 0;
     }
@@ -57,6 +58,10 @@ public class PlayerBrain : MonoBehaviour
     {
         TakeInput();
         ActByInput();
+
+        PassCharsDataToUI();
+
+        Debug.Log(_chars.HP);
 
         _chars.Hunger += _food.HungerRate * Time.deltaTime;
     }
@@ -111,6 +116,14 @@ public class PlayerBrain : MonoBehaviour
         _chars.Stamina += Time.deltaTime * _chars.StaminaRestVlaue * 0.5f * Mathf.Exp(_restExp);
 
 
+
+        if (Input.GetKeyDown(KeyCode.L))
+        {
+            EntityBodyPart.BodyPartType bodyPart = (EntityBodyPart.BodyPartType)Random.Range(0, 7);
+            EntityBodyPart.BodyPartEffect effect = (EntityBodyPart.BodyPartEffect)Random.Range(1, 10);
+
+            _chars.SetEffectOfBodyPart(bodyPart, effect);
+        }
 
 
 
@@ -218,6 +231,17 @@ public class PlayerBrain : MonoBehaviour
     }
 
     #endregion
+
+     /// <summary>
+    /// Passes some data to UI to draw it on the screen
+    /// </summary>
+    private void PassCharsDataToUI()
+    {
+        _ui.DrawHP(_chars.BodyPartToHP, _chars.BodyPartToMaxHP, _chars.BodyPartToEffect);
+
+        _ui.DrawHunger(_chars.Hunger, _chars.MaxHunger);
+        _ui.DrawStamina(_chars.Stamina, _chars.MaxStamina);
+    }
 
     /// <summary>
     /// Gets called when peeling animation ends

@@ -87,6 +87,9 @@ public class PlayerMovement : MonoBehaviour
         _movementSpeed = _normalSpeed;
     }
 
+    /// <summary>
+    /// Creates an instance of a phantom player
+    /// </summary>
     private void CreatePhantomPlayer()
     {
         _phantomPlayer = new GameObject("Phantom Player");
@@ -103,6 +106,10 @@ public class PlayerMovement : MonoBehaviour
 
         _phantomPlayer.SetActive(false);
     }
+
+    /// <summary>
+    /// Enables phantom player in the hierarchy
+    /// </summary>
     private void ActivatePhantomPlayer()
     {
         _phantomPlayer.SetActive(true);
@@ -143,6 +150,11 @@ public class PlayerMovement : MonoBehaviour
         CheckForWalls();
     }
 
+    /// <summary>
+    /// Moves according to given input
+    /// </summary>
+    /// <param name="horizontal">horizontal axis of WASD</param>
+    /// <param name="vertical">vertical axis of WASD</param>
     public void MoveOnInput(float horizontal, float vertical)
     {
         if (_preparingForJump)
@@ -155,6 +167,12 @@ public class PlayerMovement : MonoBehaviour
         else
             _phantomPlayer.transform.Translate(_movementDir * Time.fixedDeltaTime * _movementSpeed);
     }
+
+    /// <summary>
+    /// Rotates according to given input
+    /// </summary>
+    /// <param name="mouseX">mouse horizontal change</param>
+    /// <param name="mouseY">mouse vertical change</param>
     public void RotateOnInput(float mouseX, float mouseY)
     {
        if (_climbing)
@@ -180,6 +198,9 @@ public class PlayerMovement : MonoBehaviour
         Camera.main.transform.localEulerAngles = _cameraEulerAngles;
     }
 
+    /// <summary>
+    /// Fuckin jumps idk
+    /// </summary>
     public void Jump()
     {
         if (_climbing)
@@ -193,6 +214,9 @@ public class PlayerMovement : MonoBehaviour
         
     }
 
+    /// <summary>
+    /// Rotates player to direction of a jump and blocks any movement
+    /// </summary>
     public void PrepareForJump()
     {
         _preparingForJump = true;
@@ -206,7 +230,7 @@ public class PlayerMovement : MonoBehaviour
     }
 
     /// <summary>
-    /// returns true if jumped and false if stayed on the surface
+    /// Returns true if jumped from the surface and false if stayed on the surface
     /// </summary>
     /// <returns></returns>
     public bool UnPrepareForJump()
@@ -234,6 +258,9 @@ public class PlayerMovement : MonoBehaviour
         return false;
     }
 
+    /// <summary>
+    /// Initialization of climbing
+    /// </summary>
     public void StartClimbing()
     {
         if (_lastWallHit.Equals(null))
@@ -253,6 +280,10 @@ public class PlayerMovement : MonoBehaviour
         _phantomPlayer.transform.rotation = Quaternion.FromToRotation(_phantomPlayer.transform.up, _lastWallHit.normal) * _phantomPlayer.transform.rotation;
         _cameraRotationX = _cameraClampClimbing.y;
     }
+
+    /// <summary>
+    /// Reverts values to stop climbing
+    /// </summary>
     public void StopClimbing()
     {
         _rigidbody.useGravity = true;
@@ -268,18 +299,27 @@ public class PlayerMovement : MonoBehaviour
 
     }
 
+    /// <summary>
+    /// Changes movement speed to run speed
+    /// </summary>
     public void StartRunning()
     {
         _movementSpeed = _runningSpeed;
         _running = true;
     }
 
+    /// <summary>
+    /// Changes movement speed to walk speed
+    /// </summary>
     public void StopRunning()
     {
         _movementSpeed = _normalSpeed;
         _running = false;
     }
 
+    /// <summary>
+    /// Cheks if there are any walls touching the player
+    /// </summary>
     private void CheckForWalls()
     {
         if (_preparingForJump)

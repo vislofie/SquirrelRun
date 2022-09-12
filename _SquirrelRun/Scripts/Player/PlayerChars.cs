@@ -1,27 +1,16 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.UI;
 
 public class PlayerChars : MonoBehaviour
 {
-    [Header("UI")]
-    [SerializeField]
-    private Slider _hpBar;
-    [SerializeField]
-    private Slider _staminaBar;
-    [SerializeField]
-    private Slider _hungerBar;
-
     [Header("Characterstics")]
-    [SerializeField]
-    private float _maxHP;
     [SerializeField]
     private float _maxStamina;
     [SerializeField]
     private float _maxHunger;
 
-    private float _hp;
+    private PlayerHP _hp;
     private float _stamina;
     private float _hunger;
 
@@ -29,12 +18,7 @@ public class PlayerChars : MonoBehaviour
     {
         get
         {
-            return _hp;
-        }
-        set
-        {
-            _hp = Mathf.Clamp(value, 0, _maxHP);
-            _hpBar.value = _hp / _maxHP;
+            return _hp.OverallHP;
         }
     }
     public float Stamina
@@ -46,7 +30,6 @@ public class PlayerChars : MonoBehaviour
         set
         {
             _stamina = Mathf.Clamp(value, 0, _maxStamina);
-            _staminaBar.value = _stamina / _maxStamina;
         }
     }
     public float Hunger
@@ -58,9 +41,11 @@ public class PlayerChars : MonoBehaviour
         set
         {
             _hunger = Mathf.Clamp(value, 0, _maxHunger);
-            _hungerBar.value = _hunger / _maxHunger;
         }
     }
+
+    public float MaxStamina => _maxStamina;
+    public float MaxHunger => _maxHunger;
     
     [Header("Stamina costs")]
     [SerializeField][Tooltip("This variable is a multiplier for Time.deltaTime")]
@@ -85,5 +70,89 @@ public class PlayerChars : MonoBehaviour
     public float StaminaRestVlaue => _staminaRestValue;
     public float RestExpValue => _restExpValue;
 
+    private void Awake()
+    {
+        StartCoroutine(OneSecondCoroutine());
+
+        _hp = new PlayerHP();
+        _hp.Initialize();
+    }
+
+    private void Update()
+    {
+        _hp.OnUpdate();
+    }
+
+    /// <summary>
+    /// Coroutine that is being called each real-time second
+    /// </summary>
+    /// <returns></returns>
+    private IEnumerator OneSecondCoroutine()
+    {
+        while(true)
+        {
+            yield return new WaitForSeconds(1.0f);
+            _hp.OnCoroutineUpdate();
+        }
+    }
+
+    public Dictionary<EntityBodyPart.BodyPartType, float> BodyPartToHP => _hp.BodyPartToHP; // dictionary that contains HP of each body part
+    public Dictionary<EntityBodyPart.BodyPartType, float> BodyPartToMaxHP => _hp.BodyPartToMaxHP; // dictionary that contains max HP of each body part
+    public Dictionary<EntityBodyPart.BodyPartType, EntityBodyPart.BodyPartEffect> BodyPartToEffect => _hp.BodyPartToEffect; // dictionary that contains effects of each body parts
+
+    /// <summary>
+    /// Sets HP to given body part
+    /// </summary>
+    /// <param name="bodyPart">given body part</param>
+    /// <param name="hp">hp</param>
+    public void SetHPOfBodyPart(EntityBodyPart.BodyPartType bodyPart, float hp)
+    {
+        if (!_hp.BodyPartToHP.ContainsKey(bodyPart)) throw new System.ArgumentException("There is no body part with this ID!");
+        _hp.SetHPOfBodyPart(bodyPart, hp);
+    }
     
+    /// <summary>
+    /// Sets effects on given body parts
+    /// </summary>
+    /// <param name="bodyPart">body part</param>
+    /// <param name="effect">effect</param>
+    public void SetEffectOfBodyPart(EntityBodyPart.BodyPartType bodyPart, EntityBodyPart.BodyPartEffect effect)
+    {
+        if (!_hp.BodyPartToHP.ContainsKey(bodyPart)) throw new System.ArgumentException("There is no body part with this ID!");
+        _hp.SetEffectOfBodyPart(bodyPart, effect);
+    }
+
+    /// <summary>
+    /// Returns HP of given body part
+    /// </summary>
+    /// <param name="bodyPart">body part</param>
+    /// <returns>float value of HP</returns>
+    public float GetHPOfBodyPart(EntityBodyPart.BodyPartType bodyPart)
+    {
+        if (!_hp.BodyPartToHP.ContainsKey(bodyPart)) throw new System.ArgumentException("There is no body part with this ID!");
+        return _hp.BodyPartToHP[bodyPart];
+    }
+
+    /// <summary>
+    /// Returns max HP of given body part
+    /// </summary>
+    /// <param name="bodyPart">body part</param>
+    /// <returns>float value of max HP</returns>
+    public float GetMaxHPOfBodyPart(EntityBodyPart.BodyPartType bodyPart)
+    {
+        if (!_hp.BodyPartToMaxHP.ContainsKey(bodyPart)) throw new System.ArgumentException("There is no body part with this ID!");
+        return _hp.BodyPartToMaxHP[bodyPart];
+    }
+
+    /// <summary>
+    /// Return effect of given body part
+    /// </summary>
+    /// <param name="bodyPart">body part</param>
+    /// <returns>bit value of effects, summed up together</returns>
+    /// <exception cref="System.ArgumentException"></exception>
+    public EntityBodyPart.BodyPartEffect GetEffectOfBodyPart(EntityBodyPart.BodyPartType bodyPart)
+    {
+        if (!_hp.BodyPartToEffect.ContainsKey(bodyPart)) throw new System.ArgumentException("There is no body part with this ID!");
+        return _hp.BodyPartToEffect[bodyPart];
+    }
 }
