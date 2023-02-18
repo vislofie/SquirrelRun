@@ -15,9 +15,4 @@ public class ItemManager : MonoBehaviour
             return _instance;
         }
     }
-
-    private void Awake()
-    {
-
-    }
 }
